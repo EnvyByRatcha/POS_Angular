@@ -1,0 +1,116 @@
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
+  <a routerLink="/" class="brand-link">
+    <img
+      src="assets/dist/img/AdminLTELogo.png"
+      alt="AdminLTE Logo"
+      class="brand-image img-circle elevation-3"
+      style="opacity: 0.8"
+    />
+    <span class="brand-text font-weight-light">My POS</span>
+  </a>
+
+  <div class="sidebar">
+    @if(name!=undefined){
+    <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+      <div class="image">
+        <img
+          src="assets/dist/img/user2-160x160.jpg"
+          class="img-circle elevation-2"
+          alt="User Image"
+        />
+      </div>
+      <div class="info">
+        <div class="d-block text-white">{{ name }}</div>
+      </div>
+    </div>
+
+    <div class="d-grid">
+      <button class="btn btn-danger" (click)="signOut()">signout</button>
+    </div>
+    }
+
+    <nav class="mt-2">
+      <ul
+        class="nav nav-pills nav-sidebar flex-column"
+        data-widget="treeview"
+        role="menu"
+        data-accordion="false"
+      >
+        @if (level=='admin') {
+        <li class="nav-item">
+          <a routerLink="/dashboard" class="nav-link">
+            <i class="nav-icon fas fa-th"></i>
+            <p>DashBoard</p>
+          </a>
+        </li>
+        } @if (level=='employee' || level=='admin') {
+        <li class="nav-item">
+          <a routerLink="/sale" class="nav-link">
+            <i class="nav-icon fas fa-copy"></i>
+            <p>เมนู</p>
+          </a>
+        </li>
+        } @if (level=='admin') {
+        <li class="nav-header">ABOUT FOOD</li>
+        <li class="nav-item">
+          <a routerLink="/foodtype" class="nav-link">
+            <i class="nav-icon fas fa-th"></i>
+            <p>ประเภทอาหาร</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/foodsize" class="nav-link">
+            <i class="nav-icon fas fa-copy"></i>
+            <p>ขนาด</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/taste" class="nav-link">
+            <i class="nav-icon fas fa-copy"></i>
+            <p>รสชาติ</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/food" class="nav-link">
+            <i class="nav-icon fas fa-copy"></i>
+            <p>อาหาร/เครื่องดื่ม</p>
+          </a>
+        </li>
+        <li class="nav-header">ABOUT USER</li>
+        <li class="nav-item">
+          <a routerLink="/user" class="nav-link">
+            <i class="nav-icon fas fa-copy"></i>
+            <p>ผู้ใช้งานระบบ</p>
+          </a>
+        </li>
+        <li class="nav-header">ABOUT SHOP/BILLSALE</li>
+        <li class="nav-item">
+          <a routerLink="/organization" class="nav-link">
+            <i class="nav-icon fas fa-copy"></i>
+            <p>ข้อมูลร้าน</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/bill-sale" class="nav-link">
+            <i class="nav-icon fas fa-copy"></i>
+            <p>รายการบิลขาย</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/reportSale" class="nav-link">
+            <i class="nav-icon fas fa-copy"></i>
+            <p>สรุปยอดขาย</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/reportSalePerMonth" class="nav-link">
+            <i class="nav-icon fas fa-copy"></i>
+            <p>สรุปยอดรายเดือน</p>
+          </a>
+        </li>
+        }
+        <br />
+      </ul>
+    </nav>
+  </div>
+</aside>

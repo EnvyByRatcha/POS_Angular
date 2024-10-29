@@ -1,0 +1,29 @@
+<div class="card mt-3">
+  <div class="card-header bg-dark">ข้อมูลร้าน</div>
+  <div class="card-body">
+    <div>ชื่อร้าน</div>
+    <input class="form-control" type="text" [(ngModel)]="name" />
+    <div class="mt-3">ที่อยู่</div>
+    <input class="form-control" type="text" [(ngModel)]="address" />
+    <div class="mt-3">เบอร์โทรศัพท์</div>
+    <input class="form-control" type="text" [(ngModel)]="phone" />
+    <div class="mt-3">อีเมล</div>
+    <input class="form-control" type="text" [(ngModel)]="email" />
+    <div class="mt-3">รูปภาพ</div>
+    @if (logo!=='') {
+        <div class="mb-2">
+            <img [src]="logoPath" class="img-thumbnail" width="100px" height="100px"/>
+        </div>
+    }
+    <input class="form-control" type="file" (change)="onFileChange($event)" />
+    <div class="mt-3">เลขผู้เสียภาษี</div>
+    <input class="form-control" type="text" [(ngModel)]="taxCode" />
+    <div class="mt-3">เว็ปไซต์</div>
+    <input class="form-control" type="text" [(ngModel)]="website" />
+    <div class="mt-3">พร้อมเพย์</div>
+    <input class="form-control" type="text" [(ngModel)]="promptPay" />
+    <button class="btn btn-primary mt-3" (click)="save()">
+      <i class="fa fa-check me-2"></i>บันทึก
+    </button>
+  </div>
+</div>

@@ -1,0 +1,56 @@
+<div class="card mt-3">
+  <div class="card-header bg-dark">รายงานบิลขาย</div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-5">
+        <div class="input-group">
+          <span class="input-group-text">จากวันที่</span>
+          <input type="date" class="form-control" [(ngModel)]="startDate" />
+        </div>
+      </div>
+      <div class="col-md-5">
+        <div class="input-group">
+          <span class="input-group-text">ถึงวันที่</span>
+          <input type="date" class="form-control" [(ngModel)]="endDate" />
+        </div>
+      </div>
+      <div class="col-md-2">
+        <button class="btn btn-primary" (click)="fetchData()">
+          <i class="fa fa-search me-2"></i>แสดงรายการ
+        </button>
+      </div>
+    </div>
+    <table class="table table-bordered table-striped mt-3">
+      <thead>
+        <tr>
+          <th class="text-center">วันที่</th>
+          <th class="text-end">รหัสบิล</th>
+          <th class="text-end">พนักงานขาย</th>
+          <th class="text-center">โต๊ะ</th>
+          <th class="text-center">การจ่าย</th>
+          <th class="text-end">ราคาทั้งหมด</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (billSale of billSales; track $index) {
+        <tr>
+          <td class="text-center">
+            {{ dayjs(billSale.createdDate).format("DD/MM/YYYY") }}
+          </td>
+          <td class="text-end">{{ billSale.id }}</td>
+          <td class="text-end">{{ billSale.User.name }}</td>
+          <td class="text-center">{{ billSale.tableNo }}</td>
+          <td class="text-center">{{ billSale.payType }}</td>
+          <td class="text-end">{{ billSale.amount }}</td>
+          <td>
+            <button class="btn btn-danger" (click)="remove(billSale.id)">
+              <i class="fa fa-times"></i>
+            </button>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,36 @@
+<div class="card mt-3">
+  <div class="card-header bg-dark">สรุปยอดขาย</div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-3">
+        <select class="form-control" [(ngModel)]="year">
+          @for (year of ddlYear; track $index) {
+          <option [value]="year">{{ year }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-3">
+        <button class="btn btn-success" (click)="fetchData()">
+          <i class="fa fa-search me-2"></i>ค้นหา
+        </button>
+      </div>
+    </div>
+
+    <table class="table table-bordered table-striped mt-3">
+      <thead>
+        <tr>
+          <th>เดือนที่</th>
+          <th>ยอดรวม</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of data; track $index) {
+        <tr>
+          <td>{{ item.month }}</td>
+          <td class="text-end">{{ item.amount.toLocaleString("th-TH") }}</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

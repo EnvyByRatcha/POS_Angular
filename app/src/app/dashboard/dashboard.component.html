@@ -1,0 +1,39 @@
+<div class="card mt-3">
+  <div class="card-header bg-dark">Dashboard</div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-3">
+        <div class="form-group">
+          <select class="form-control" [(ngModel)]="year">
+            @for (year of years; track $index) {
+            <option [value]="year">{{ year }}</option>
+            }
+          </select>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="form-group">
+          <select class="form-control" [(ngModel)]="month">
+            @for (month of monthsName; track $index) {
+            <option [value]="$index + 1">{{ month }}</option>
+            }
+          </select>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <button class="btn btn-primary" (click)="fetchData()">
+          <i class="fa fa-search me-2"></i>แสดงข้อมูล
+        </button>
+      </div>
+
+      <div class="col-md-12 mt-2">
+        <div class="h4">สรุปรายรับตามวัน</div>
+        <canvas id="chartPerDay" height="100"></canvas>
+      </div>
+      <div class="col-md-12 mt-4">
+        <div class="h4">สรุปรายรับตามเดือน</div>
+        <canvas id="chartPerMonth" height="100"></canvas>
+      </div>
+    </div>
+  </div>
+</div>

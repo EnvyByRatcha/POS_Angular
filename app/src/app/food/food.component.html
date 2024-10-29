@@ -1,0 +1,128 @@
+<div class="card mt-4">
+  <div class="card-header bg-dark">อาหาร/เครื่องดื่ม</div>
+  <div class="card-body">
+    <div >
+      <button
+        class="btn btn-primary mr-2"
+        data-bs-toggle="modal"
+        data-bs-target="#modalFood"
+        (click)="clearForm()"
+      >
+        <i class="fa fa-plus me-2"></i>เพิ่มรายการ
+      </button>
+      <button class="btn btn-success mr-2" (click)="filterFood()">
+        <i class="fa fa-utensils me-2"></i>อาหาร
+      </button>
+      <button class="btn btn-warning mr-2" (click)="filterDrink()">
+        <i class="fa fa-mug-hot me-2"></i>เครื่องดิ่ม
+      </button>
+      <button class="btn btn-dark" (click)="filterAll()">
+        <i class="fa fa-bowl-food me-2"></i>อาหาร/เครื่องดิ่ม
+      </button>
+    </div>
+    <table class="table table-bordered table-striped mt-3">
+      <thead>
+        <tr>
+          <th width="100px"></th>
+          <th>ประเภทอาหาร</th>
+          <th>หมวด</th>
+          <th>รายการ</th>
+          <th>หมายเหตุ</th>
+          <th>ราคา</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of foods; track item) {
+        <tr>
+          @if (item.img!='') {
+          <td>
+            <img src="{{ serverPath }}/uploads/{{ item.img }}" width="100px" />
+          </td>
+          }@else {
+          <td></td>
+          }
+          <td>{{ item.FoodType.name }}</td>
+          <td>{{ item.foodType }}</td>
+          <td class="text-center">{{ item.name }}</td>
+          <td class="text-end">{{ item.remark }}</td>
+          <th class="text-end">{{ item.price }}</th>
+          <td class="text-center">
+            <button
+              class="btn btn-primary mr-2"
+              data-bs-toggle="modal"
+              data-bs-target="#modalFood"
+              (click)="selectId(item)"
+            >
+              <i class="fa fa-pencil"></i>
+            </button>
+            <button class="btn btn-danger" (click)="remove(item)">
+              <i class="fa fa-times"></i>
+            </button>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<app-modal modalId="modalFood" title="อาหาร/เครื่องดื่ม">
+  <div>
+    <div>ประเภทอาหาร</div>
+    <select class="form-control" [(ngModel)]="foodTypeId">
+      @for (item of foodTypes; track item) {
+      <option [value]="item.id">
+        {{ item.name }}
+      </option>
+      }
+    </select>
+  </div>
+  <div class="mt-3">
+    <div>ชื่ออาหาร</div>
+    <input class="form-control" [(ngModel)]="name" />
+  </div>
+  <div class="mt-3">
+    <div>หมายเหตุ</div>
+    <input class="form-control" [(ngModel)]="remark" />
+  </div>
+
+  <div class="mt-3">
+    @if (img!='') {
+    <div class="mb-2">
+      <img src="{{ serverPath }}/uploads/{{ img }}" height="100px" />
+    </div>
+    }
+    <div>รูปภาพ</div>
+    <input
+      type="file"
+      class="form-control"
+      id="img"
+      (change)="fileSelect($event.target)"
+    />
+  </div>
+  <div class="mt-3">
+    <div>ราคา</div>
+    <input type="number" class="form-control" [(ngModel)]="price" />
+  </div>
+  <div class="mt-3">
+    <div>หมวดอาหาร</div>
+    <input
+      type="radio"
+      name="foodType"
+      value="food"
+      [(ngModel)]="foodType"
+    />อาหาร
+    <input
+      type="radio"
+      name="foodType"
+      value="drink"
+      [(ngModel)]="foodType"
+    />เครื่องดิ่ม
+  </div>
+  <div class="mt-3">
+    <button class="btn btn-primary" (click)="save()">
+      <i class="fa fa-check me-2"></i>เพิ่มรายการ
+    </button>
+  </div>
+</app-modal>
