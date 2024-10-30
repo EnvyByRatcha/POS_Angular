@@ -1,7 +1,40 @@
 <div class="card mt-3">
   <div class="card-header bg-dark">ข้อมูลร้าน</div>
   <div class="card-body">
-    <div>ชื่อร้าน</div>
+    <div class="d-flex flex-row align-items-center">
+      @if (logo!=='') {
+      <div class="mb-2">
+        <img
+          [src]="logoPath"
+          class="img-thumbnail"
+          width="100px"
+          height="100px"
+        />
+      </div>
+      }
+      <div class="h4 ml-4">{{ name }}</div>
+    </div>
+    <div class="alert alert-success mt-4">
+      <div class="h6">ที่อยู่ : {{ address }}</div>
+      <div class="h6">อีเมล: {{ email }}</div>
+      <div class="h6">โทรศัพท์: {{ phone }}</div>
+      <div class="h6">เว็ปไซต์: {{ website }}</div>
+    </div>
+    <div class="alert alert-primary">
+      <div class="h6">เลขผู้เสียภาษี: {{ taxCode }}</div>
+      <div class="h6">พร้อมเพย์: {{ promptPay }}</div>
+    </div>
+    <div class="mt-4">
+      <button class="btn btn-primary" data-bs-toggle="modal"
+      data-bs-target="#modalOrganize">
+        <i class="fa fa-pencil me-2"></i>แก้ไข
+      </button>
+    </div>
+  </div>
+</div>
+
+<app-modal modalId="modalOrganize" title="แก้ไขข้อมูลร้าน">
+  <div>ชื่อร้าน</div>
     <input class="form-control" type="text" [(ngModel)]="name" />
     <div class="mt-3">ที่อยู่</div>
     <input class="form-control" type="text" [(ngModel)]="address" />
@@ -11,9 +44,14 @@
     <input class="form-control" type="text" [(ngModel)]="email" />
     <div class="mt-3">รูปภาพ</div>
     @if (logo!=='') {
-        <div class="mb-2">
-            <img [src]="logoPath" class="img-thumbnail" width="100px" height="100px"/>
-        </div>
+    <div class="mb-2">
+      <img
+        [src]="logoPath"
+        class="img-thumbnail"
+        width="100px"
+        height="100px"
+      />
+    </div>
     }
     <input class="form-control" type="file" (change)="onFileChange($event)" />
     <div class="mt-3">เลขผู้เสียภาษี</div>
@@ -25,5 +63,6 @@
     <button class="btn btn-primary mt-3" (click)="save()">
       <i class="fa fa-check me-2"></i>บันทึก
     </button>
-  </div>
-</div>
+</app-modal>
+
+

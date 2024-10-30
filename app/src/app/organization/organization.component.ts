@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import config from '../../config';
 import Swal from 'sweetalert2';
 import { firstValueFrom } from 'rxjs';
+import { ModalComponent } from '../modal/modal.component';
 
 @Component({
   selector: 'app-organization',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, ModalComponent],
   templateUrl: './organization.component.html',
   styleUrl: './organization.component.css',
 })
@@ -75,12 +76,16 @@ export class OrganizationComponent {
       this.http
         .post(config.apiPath + '/api/organization/save', payload)
         .subscribe((res: any) => {
-          Swal.fire({
-            title: 'บันทึกข้อมูล',
-            text: 'บันทึกข้อมูลสำเร็จ',
-            icon: 'success',
-            timer: 2000,
-          });
+          if (res.message == 'success') {
+            Swal.fire({
+              title: 'บันทึกข้อมูล',
+              text: 'บันทึกข้อมูลสำเร็จ',
+              icon: 'success',
+              timer: 2000,
+            });
+
+            document.getElementById('modalOrganize_btnClose')?.click();
+          }
         });
     } catch (e: any) {
       Swal.fire({

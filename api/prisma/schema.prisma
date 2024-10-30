@@ -44,12 +44,13 @@ model FoodSize {
 }
 
 model Taste {
-  id         Int      @id @default(autoincrement())
-  name       String
-  remark     String?
-  status     String   @default("use")
-  foodTypeId Int
-  FoodType   FoodType @relation(fields: [foodTypeId], references: [id])
+  id             Int              @id @default(autoincrement())
+  name           String
+  remark         String?
+  status         String           @default("use")
+  foodTypeId     Int
+  FoodType       FoodType         @relation(fields: [foodTypeId], references: [id])
+  SaleTempDetail SaleTempDetail[]
 }
 
 model Food {
@@ -83,11 +84,14 @@ model SaleTemp {
 model SaleTempDetail {
   id         Int      @id @default(autoincrement())
   saleTempId Int
+  qty        Int      @default(1)
   addMoney   Int?
+  size       String?
   tasteId    Int?
   foodId     Int
   Food       Food     @relation(fields: [foodId], references: [id])
   SaleTemp   SaleTemp @relation(fields: [saleTempId], references: [id])
+  Taste      Taste?   @relation(fields: [tasteId], references: [id])
 }
 
 model BillSale {

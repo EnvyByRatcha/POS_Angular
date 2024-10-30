@@ -134,17 +134,20 @@ app.post("/api/saleTemp/updateTaste", (req, res) =>
 app.post("/api/saleTemp/newSaleTempDetail", (req, res) =>
   SaleTempController.newSaleTempDetail(req, res)
 );
-app.delete("/api/saleTemp/removeSaleTempDetail/:id", (req, res) =>
+app.post("/api/saleTemp/removeSaleTempDetail", (req, res) =>
   SaleTempController.removeSaleTempDetail(req, res)
 );
 app.post("/api/saleTemp/endSale", (req, res) =>
   SaleTempController.endSale(req, res)
 );
-app.post("/api/saletemp/printBillBeforePay", (req, res) =>
+app.post("/api/saleTemp/printBillBeforePay", (req, res) =>
   SaleTempController.printBillBeforePay(req, res)
 );
-app.post("/api/saletemp/printBillAfterPay", (req, res) =>
+app.post("/api/saleTemp/printBillAfterPay", (req, res) =>
   SaleTempController.printBillAfterPay(req, res)
+);
+app.put("/api/saleTemp/updateQty", (req, res) =>
+  SaleTempController.updateQty(req, res)
 );
 
 /*---OrganizationController--*/

@@ -50,9 +50,19 @@ module.exports = {
         include: { Food: true, SaleTempDetail: true },
         where: {
           userId: parseInt(req.params.userId),
+          qty: {
+            gt: 0,
+          },
         },
         orderBy: {
           id: "desc",
+        },
+      });
+
+      await prisma.saleTemp.deleteMany({
+        where: {
+          userId: parseInt(req.params.userId),
+          qty: 0,
         },
       });
 
@@ -230,6 +240,7 @@ module.exports = {
       await prisma.saleTempDetail.update({
         data: {
           addMoney: foodSize.addMoney,
+          size: foodSize.name,
         },
         where: {
           id: saleTempId,
@@ -261,6 +272,18 @@ module.exports = {
   newSaleTempDetail: async (req, res) => {
     try {
       const { saleTempId, foodId } = req.body;
+
+      await prisma.saleTemp.update({
+        data: {
+          qty: {
+            increment: 1,
+          },
+        },
+        where: {
+          id: saleTempId,
+        },
+      });
+
       await prisma.saleTempDetail.create({
         data: {
           saleTempId,
@@ -275,9 +298,20 @@ module.exports = {
   },
   removeSaleTempDetail: async (req, res) => {
     try {
+      const { id, qty, saleTempId } = req.body;
+
       await prisma.saleTempDetail.delete({
         where: {
-          id: parseInt(req.params.id),
+          id,
+        },
+      });
+
+      await prisma.saleTemp.update({
+        data: {
+          qty: qty - 1,
+        },
+        where: {
+          id: saleTempId,
         },
       });
 
@@ -591,6 +625,37 @@ module.exports = {
       return res.send({ message: "success", fileName: fileName });
     } catch (e) {
       return res.status(500).send({ error: e.message });
+    }
+  },
+  updateQty: async (req, res) => {
+    try {
+      const { id } = req.body;
+
+      const saleTempDetail = await prisma.saleTempDetail.update({
+        data: {
+          qty: {
+            increment: 1,
+          },
+        },
+        where: {
+          id,
+        },
+      });
+
+      await prisma.saleTemp.update({
+        data: {
+          qty: {
+            increment: 1,
+          },
+        },
+        where: {
+          id: saleTempDetail.saleTempId,
+        },
+      });
+
+      return res.send({ message: "success" });
+    } catch (e) {
+      return res.status(500).send({ message: "success" });
     }
   },
 };

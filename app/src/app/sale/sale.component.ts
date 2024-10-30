@@ -75,7 +75,6 @@ export class SaleComponent {
             const item = this.saleTemps[i];
 
             if (item.SaleTempDetail.length > 0) {
-              item.qty = item.SaleTempDetail.length;
               item.disableQtyButton = true;
             }
           }
@@ -104,12 +103,6 @@ export class SaleComponent {
         .post(config.apiPath + '/api/saleTemp/create', payload)
         .subscribe((res: any) => {
           if (res.message == 'success') {
-            Swal.fire({
-              title: 'เพิ่มอาหารในรายการ',
-              text: 'เพิ่มอาหารเสร็จสิ้น',
-              icon: 'success',
-              timer: 2000,
-            });
             this.fetchDataSaleTemp();
           }
         });
@@ -318,7 +311,7 @@ export class SaleComponent {
     }
   }
 
-  async removeSaleTempDetail(id: number) {
+  async removeSaleTempDetail(id: number, qty: number, saleTempId: number) {
     try {
       const button = await Swal.fire({
         title: 'ยกเลิกรายการ',
@@ -328,9 +321,15 @@ export class SaleComponent {
         showCancelButton: true,
       });
 
+      const payload = {
+        id: id,
+        qty: qty,
+        saleTempId: saleTempId,
+      };
+
       if (button.isConfirmed) {
         this.http
-          .delete(config.apiPath + '/api/saleTemp/removeSaleTempDetail' + id)
+          .post(config.apiPath + '/api/saleTemp/removeSaleTempDetail', payload)
           .subscribe((res: any) => {
             this.fetchDataSaleTempDetail();
             this.fetchDataSaleTemp();
@@ -507,6 +506,27 @@ export class SaleComponent {
         ) as HTMLIFrameElement;
         iframe?.setAttribute('src', config.apiPath + '/' + res.fileName);
       }, 500);
+    } catch (e: any) {
+      Swal.fire({
+        title: 'error',
+        text: e.message,
+        icon: 'error',
+      });
+    }
+  }
+
+  addQty(id: number) {
+    try {
+      const payload = {
+        id: id,
+      };
+
+      this.http
+        .put(config.apiPath + '/api/saleTemp/updateQty', payload)
+        .subscribe((res: any) => {
+          this.fetchDataSaleTempDetail();
+          this.fetchDataSaleTemp();
+        });
     } catch (e: any) {
       Swal.fire({
         title: 'error',

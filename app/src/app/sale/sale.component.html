@@ -129,7 +129,11 @@
   </div>
 </div>
 
-<app-modal modalId="modalFoodSize" title="เลือกขนาด" modalSize="modal-lg">
+<app-modal
+  modalId="modalFoodSize"
+  title="เลือกขนาด/รสชาติ"
+  modalSize="modal-lg"
+>
   <div class="d-flex justify-content-between">
     <div class="h4">{{ foodName }}</div>
     <button class="btn btn-primary" (click)="newSaleTempDetail()">
@@ -141,8 +145,10 @@
       <tr>
         <th></th>
         <th>รายการ</th>
+        <th class="text-center">จำนวน</th>
         <th class="text-center">รสชาติ</th>
         <th class="text-center">เลือกขนาด</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
@@ -151,19 +157,26 @@
         <td class="text-center">
           <button
             class="btn btn-danger"
-            (click)="removeSaleTempDetail(item.id)"
+            (click)="
+              removeSaleTempDetail(
+                item.id,
+                saleTempDetail.length,
+                item.saleTempId
+              )
+            "
           >
             <i class="fa fa-times"></i>
           </button>
         </td>
         <td>{{ item.Food.name }}</td>
+        <td class="text-center">{{ item.qty }}</td>
         <td class="text-center">
           @for (taste of tastes; track $index) { @if (taste.id===item.tasteId) {
-          <button class="btn btn-success me-2">
+          <button class="btn btn-dark me-2">
             {{ taste.name }}
           </button>
           }@else {<button
-            class="btn btn-outline-success me-2"
+            class="btn btn-outline-dark me-2"
             (click)="selectedTaste(item.id, taste.id)"
           >
             {{ taste.name }}</button
@@ -173,19 +186,25 @@
           @for (foodSize of foodSizes; track $index) { @if
           (foodSize.addMoney>0){ @if (foodSize.addMoney!=item.addMoney) {
           <button
-            class="btn btn-outline-primary btn-sm me-1"
+            class="btn btn-outline-dark me-1"
             (click)="selectedFoodSize(item.id, foodSize.id)"
           >
             {{ foodSize.name }} + {{ foodSize.addMoney }} บาท
           </button>
           }@else {
           <button
-            class="btn btn-primary btn-sm me-1"
+            class="btn btn-dark me-1"
             (click)="selectedFoodSize(item.id, foodSize.id)"
           >
             {{ foodSize.name }} + {{ foodSize.addMoney }} บาท
           </button>
           } } }
+        </td>
+        <td class="text-center">
+          <button class="btn btn-success me-1" (click)="addQty(item.id)">
+            <i class="fa fa-plus"></i>
+          </button>
+          <button class="btn btn-danger"><i class="fa fa-minus"></i></button>
         </td>
       </tr>
       }
