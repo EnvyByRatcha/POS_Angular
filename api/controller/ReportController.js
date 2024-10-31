@@ -63,7 +63,7 @@ module.exports = {
           where: {
             createdDate: {
               gte: new Date(startDate.format("YYYY-MM-DD")),
-              lte: new Date(endDate.format("YYYY-MM-DD")),
+              lte: new Date(endDate.format("YYYY-MM-DD HH:mm:ss")),
             },
             status: "use",
           },

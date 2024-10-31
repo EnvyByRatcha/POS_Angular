@@ -240,7 +240,7 @@ module.exports = {
       await prisma.saleTempDetail.update({
         data: {
           addMoney: foodSize.addMoney,
-          size: foodSize.name,
+          foodSizeId,
         },
         where: {
           id: saleTempId,
@@ -254,15 +254,27 @@ module.exports = {
   },
   updateTaste: async (req, res) => {
     try {
-      const { saleTempId, tasteId } = req.body;
-      await prisma.saleTempDetail.update({
-        data: {
-          tasteId,
-        },
-        where: {
-          id: saleTempId,
-        },
-      });
+      const { saleTempId, tasteId, selected } = req.body;
+
+      if (selected == "select") {
+        await prisma.saleTempDetail.update({
+          data: {
+            tasteId,
+          },
+          where: {
+            id: saleTempId,
+          },
+        });
+      } else {
+        await prisma.saleTempDetail.update({
+          data: {
+            tasteId: null,
+          },
+          where: {
+            id: saleTempId,
+          },
+        });
+      }
 
       return res.send({ message: "success" });
     } catch (e) {
@@ -358,25 +370,26 @@ module.exports = {
 
             await prisma.billSaleDetail.create({
               data: {
-                billSaleId: billSale.id,
                 foodId: detail.foodId,
+                billSaleId: billSale.id,
+                foodSizeId: detail.foodSizeId,
                 tasteId: detail.tasteId,
                 addMoney: detail.addMoney,
                 price: detail.Food.price,
+                qty: detail.qty,
               },
             });
           }
         } else {
           if (item.qty > 0) {
-            for (let j = 0; j < item.qty; j++) {
-              await prisma.billSaleDetail.create({
-                data: {
-                  billSaleId: billSale.id,
-                  foodId: item.foodId,
-                  price: item.Food.price,
-                },
-              });
-            }
+            await prisma.billSaleDetail.create({
+              data: {
+                billSaleId: billSale.id,
+                foodId: item.foodId,
+                price: item.Food.price,
+                qty: item.qty,
+              },
+            });
           } else {
             await prisma.billSaleDetail.create({
               data: {
@@ -418,7 +431,11 @@ module.exports = {
       const saleTemps = await prisma.saleTemp.findMany({
         include: {
           Food: true,
-          SaleTempDetail: true,
+          SaleTempDetail: {
+            include: {
+              FoodSize: true,
+            },
+          },
         },
         where: {
           userId,
@@ -430,11 +447,17 @@ module.exports = {
       const fs = require("fs");
       const dayjs = require("dayjs");
 
+      let calPaperHeight = 0;
+      saleTemps.map((item, index) => {
+        calPaperHeight += item.SaleTempDetail.length;
+      });
+
       const paperWidth = 80;
+      const paperHeight = calPaperHeight * 5 + 125;
       const padding = 3;
 
       const doc = new pdfkit({
-        size: [80, 200],
+        size: [paperWidth, paperHeight],
         margin: 3,
       });
       const fileName = `uploads/bill-${dayjs(new Date()).format(
@@ -454,56 +477,103 @@ module.exports = {
 
       doc.moveDown();
 
-      doc.font(font);
-      doc.fontSize(5).text("*** ใบแจ้งรายการ ***", 20, doc.y + 8);
-      doc.fontSize(8);
-      doc.text(organization.name, padding, doc.y);
-
-      doc.fontSize(5);
-      doc.text(organization.address);
-      doc.text(`เบอร์โทร: ${organization.phone}`);
-      doc.text(`เลขประจำตัวผู้เสียภาษี: ${organization.taxCode}`);
-      doc.text(`โต๊ะ: ${tableNo}`);
-      doc.text(`วันที่: ${dayjs(new Date()).format("DD/MM/YYYY HH:mm")}`, {
-        align: "center",
-      });
-      doc.text("รายการอาหาร", { align: "center" });
-
-      doc.moveDown();
-
-      const y = doc.y;
       doc.fontSize(4);
-      doc.text("รายการ", padding, y);
-      doc.text("ราคา", padding + 18, y, { align: "right", width: 20 });
-      doc.text("จำนวน", padding + 36, y, { align: "right", width: 20 });
-      doc.text("รวม", padding + 55, y, { align: "right" });
+      doc.font(font);
+      doc.text("*** ใบแจ้งรายการ ***", padding, doc.y + 8, { align: "center" });
+      doc
+        .fontSize(6)
+        .text(organization.name, padding, doc.y, { align: "center" });
 
+      doc.fontSize(3);
+      doc.text(organization.address, padding, doc.y - 2, { align: "center" });
+      doc.text(`TAXID : ${organization.taxCode}`, { align: "center" });
+      doc.text(`TEL : ${organization.phone}`, { align: "center" });
+
+      doc.moveDown(0.5);
       doc.lineWidth(0.1);
       doc
-        .moveTo(padding, y + 6)
-        .lineTo(paperWidth - padding, y + 6)
+        .moveTo(padding, doc.y)
+        .lineTo(paperWidth - padding, doc.y)
+        .dash(1, { space: 1 })
         .stroke();
 
+      doc.moveDown(0.5);
+      doc.fontSize(4);
+      let y = doc.y;
+      doc.text(
+        `DATE: ${dayjs(new Date()).format("DD/MM/YYYY HH:mm")}`,
+        padding,
+        y,
+        {
+          align: "left",
+        }
+      );
+      doc.text(`TABLE : ${tableNo}`, padding, y, { align: "right" });
+      doc.text(`ORDER : ORD00002065OC`);
+
+      doc.moveDown(0.5);
+      doc.lineWidth(0.1);
+      doc
+        .moveTo(padding, doc.y)
+        .lineTo(paperWidth - padding, doc.y)
+        .stroke();
+
+      doc.moveDown(0.5);
       let sumAmount = 0;
+
       saleTemps.map((item, index) => {
-        sumAmount += item.Food.price * item.qty;
-        const y = doc.y;
-        doc.text(item.Food.name, padding, y);
-        doc.text(item.Food.price, padding + 18, y, {
-          align: "right",
-          width: 20,
-        });
-        doc.text(item.qty, padding + 36, y, { align: "right", width: 20 });
-        doc.text(item.Food.price * item.qty, padding + 55, y, {
-          align: "right",
+        const details = item.SaleTempDetail;
+
+        details.map((detail, index) => {
+          const y = doc.y;
+          const name = detail.foodSizeId
+            ? item.Food.name + " (" + detail.FoodSize.name + ")"
+            : item.Food.name;
+          const price = (item.Food.price + detail.addMoney) * detail.qty;
+          sumAmount += price;
+
+          doc.text(name, padding, y);
+          doc.text(detail.qty, padding + 40, y, {
+            align: "right",
+            width: 10,
+          });
+          doc.text(price.toFixed(2), padding + 55, y, {
+            align: "right",
+          });
         });
       });
-      doc.text(`รวม: ${sumAmount} บาท`, padding, doc.y, {
+
+      doc.moveDown(0.5);
+      doc.lineWidth(0.1);
+      doc
+        .moveTo(padding, doc.y)
+        .lineTo(paperWidth - padding, doc.y)
+        .stroke();
+
+      doc.moveDown(0.5);
+
+      y = doc.y;
+      doc.text("รวม", padding, y, { align: "left" });
+      doc.text(sumAmount.toFixed(2), padding, y, { align: "right" });
+      y = doc.y;
+      doc.text("ส่วนลด", padding, y, { align: "left" });
+      doc.text("0.00", padding, y, { align: "right" });
+
+      y = doc.y;
+      doc.fontSize(6);
+      doc.text("ยอดชำระสุทธิ", padding, y);
+      doc.text(sumAmount.toFixed(2), padding, y, {
         align: "right",
         width: paperWidth - padding * 2,
       });
 
+      doc.moveDown(0.5);
+      doc.fontSize(4);
+      doc.text("*** กรุณาตรวจสอบรายการให้ถูกต้อง ***", { align: "center" });
+      doc.text("ขอขอบพระคุณเป็นอย่างสูง", { align: "center" });
+
       doc.end();
+
       return res.send({ message: "success", fileName: fileName });
     } catch (e) {
       return res.status(500).send({ error: e.message });
@@ -524,6 +594,8 @@ module.exports = {
           BillSaleDetail: {
             include: {
               Food: true,
+              FoodSize: true,
+              Taste: true,
             },
           },
           User: true,
@@ -539,11 +611,14 @@ module.exports = {
       const fs = require("fs");
       const dayjs = require("dayjs");
 
+      let calPaperHeight = billSaleDetails.length;
+
       const paperWidth = 80;
+      const paperHeight = calPaperHeight * 5 + 135;
       const padding = 3;
 
       const doc = new pdfkit({
-        size: [80, 200],
+        size: [paperWidth, paperHeight],
         margin: 3,
       });
       const fileName = `uploads/invoice-${dayjs(new Date()).format(
@@ -563,65 +638,127 @@ module.exports = {
 
       doc.moveDown();
 
+      doc.fontSize(4);
       doc.font(font);
-      doc.fontSize(5).text("*** ใบเสร็จรับเงิน ***", 20, doc.y + 8);
-      doc.fontSize(8);
-      doc.text(organization.name, padding, doc.y);
-
-      doc.fontSize(5);
-      doc.text(organization.address);
-      doc.text(`เบอร์โทร: ${organization.phone}`);
-      doc.text(`เลขประจำตัวผู้เสียภาษี: ${organization.taxCode}`);
-      doc.text(`โต๊ะ: ${tableNo}`);
-      doc.text(`วันที่: ${dayjs(new Date()).format("DD/MM/YYYY HH:mm")}`, {
+      doc.text("*** ใบเสร็จรับเงิน ***", padding, doc.y + 8, {
         align: "center",
       });
-      doc.text("รายการอาหาร", { align: "center" });
+      doc
+        .fontSize(6)
+        .text(organization.name, padding, doc.y, { align: "center" });
 
-      doc.moveDown();
+      doc.fontSize(3);
+      doc.text(organization.address, padding, doc.y - 2, { align: "center" });
+      doc.text(`TAXID : ${organization.taxCode}`, { align: "center" });
+      doc.text(`TEL : ${organization.phone}`, { align: "center" });
 
-      const y = doc.y;
-      doc.fontSize(4);
-      doc.text("รายการ", padding, y);
-      doc.text("ราคา", padding + 18, y, { align: "right", width: 20 });
-      doc.text("จำนวน", padding + 36, y, { align: "right", width: 20 });
-      doc.text("รวม", padding + 55, y, { align: "right" });
-
+      doc.moveDown(0.5);
       doc.lineWidth(0.1);
       doc
-        .moveTo(padding, y + 6)
-        .lineTo(paperWidth - padding, y + 6)
+        .moveTo(padding, doc.y)
+        .lineTo(paperWidth - padding, doc.y)
+        .dash(1, { space: 1 })
         .stroke();
 
+      doc.moveDown(0.5);
+      doc.fontSize(4);
+      let y = doc.y;
+      doc.text(
+        `DATE: ${dayjs(new Date()).format("DD/MM/YYYY HH:mm")}`,
+        padding,
+        y,
+        {
+          align: "left",
+        }
+      );
+      doc.text(`TABLE : ${tableNo}`, padding, y, { align: "right" });
+      doc.text(`ORDER : ORD00002065OC`);
+
+      doc.moveDown(0.5);
+      doc.lineWidth(0.1);
+      doc
+        .moveTo(padding, doc.y)
+        .lineTo(paperWidth - padding, doc.y)
+        .stroke();
+
+      doc.moveDown(0.5);
+
       let sumAmount = 0;
+
       billSaleDetails.map((item, index) => {
-        sumAmount += item.Food.price * 1;
         const y = doc.y;
-        doc.text(item.Food.name, padding, y);
-        doc.text(item.price, padding + 18, y, {
+
+        const price = (item.Food.price + item.addMoney) * item.qty;
+        sumAmount += price;
+
+        const name = `${item.Food.name}${
+          item.tasteId ? "/" + item.Taste.name : ""
+        } ${item.foodSizeId ? " (" + item.FoodSize.name + ") " : ""}`;
+
+        doc.text(name, padding, y);
+        doc.text(item.qty, padding + 30, y, {
           align: "right",
           width: 20,
         });
-        doc.text(1, padding + 36, y, { align: "right", width: 20 });
-        doc.text(item.price * 1, padding + 55, y, {
+        doc.text(price.toFixed(2), padding + 55, y, {
           align: "right",
         });
       });
 
-      doc.text(`รวม: ${sumAmount} บาท`, padding, doc.y, {
+      doc.moveDown(0.5);
+      doc.lineWidth(0.1);
+      doc
+        .moveTo(padding, doc.y)
+        .lineTo(paperWidth - padding, doc.y)
+        .stroke();
+
+      doc.moveDown(0.5);
+
+      y = doc.y;
+      doc.text("รวม", padding, y, { align: "left" });
+      doc.text(sumAmount.toFixed(2), padding, y, { align: "right" });
+      y = doc.y;
+      doc.text("ส่วนลด", padding, y, { align: "left" });
+      doc.text("0.00", padding, y, { align: "right" });
+
+      y = doc.y;
+      doc.fontSize(6);
+      doc.text("ยอดชำระสุทธิ", padding, y);
+      doc.text(sumAmount.toFixed(2), padding, y, {
         align: "right",
         width: paperWidth - padding * 2,
       });
-      doc.text(`รับเงิน: ${billSale.inputMoney} บาท`, padding, doc.y, {
+      y = doc.y;
+      doc.fontSize(4);
+      doc.text("รับเงิน", padding, y);
+      doc.text(billSale.inputMoney.toFixed(2), padding, y, {
         align: "right",
         width: paperWidth - padding * 2,
       });
-      doc.text(`เงินทอน: ${billSale.returnMoney} บาท`, padding, doc.y, {
+      y = doc.y;
+      doc.text("เงินทอน", padding, y);
+      doc.text(billSale.returnMoney.toFixed(2), padding, y, {
         align: "right",
         width: paperWidth - padding * 2,
       });
 
+      doc.moveDown(0.5);
+      doc.text("*** กรุณาตรวจสอบรายการให้ถูกต้อง ***", { align: "center" });
+      doc.text("ขอขอบพระคุณเป็นอย่างสูง", { align: "center" });
+
       doc.end();
+
+      prisma.billSale.update({
+        data: {
+          invoice: fileName.substring(fileName.indexOf("invoice-")),
+        },
+        where: {
+          userId,
+          tableNo,
+          status: "use",
+        },
+      });
+
       return res.send({ message: "success", fileName: fileName });
     } catch (e) {
       return res.status(500).send({ error: e.message });
@@ -629,29 +766,53 @@ module.exports = {
   },
   updateQty: async (req, res) => {
     try {
-      const { id } = req.body;
+      const { id, condition } = req.body;
 
-      const saleTempDetail = await prisma.saleTempDetail.update({
-        data: {
-          qty: {
-            increment: 1,
+      if (condition == "plus") {
+        const saleTempDetail = await prisma.saleTempDetail.update({
+          data: {
+            qty: {
+              increment: 1,
+            },
           },
-        },
-        where: {
-          id,
-        },
-      });
+          where: {
+            id,
+          },
+        });
 
-      await prisma.saleTemp.update({
-        data: {
-          qty: {
-            increment: 1,
+        await prisma.saleTemp.update({
+          data: {
+            qty: {
+              increment: 1,
+            },
           },
-        },
-        where: {
-          id: saleTempDetail.saleTempId,
-        },
-      });
+          where: {
+            id: saleTempDetail.saleTempId,
+          },
+        });
+      } else {
+        const saleTempDetail = await prisma.saleTempDetail.update({
+          data: {
+            qty: {
+              decrement: 1,
+            },
+          },
+          where: {
+            id,
+          },
+        });
+
+        await prisma.saleTemp.update({
+          data: {
+            qty: {
+              decrement: 1,
+            },
+          },
+          where: {
+            id: saleTempDetail.saleTempId,
+          },
+        });
+      }
 
       return res.send({ message: "success" });
     } catch (e) {

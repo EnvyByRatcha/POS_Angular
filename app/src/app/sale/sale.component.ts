@@ -268,11 +268,12 @@ export class SaleComponent {
     }
   }
 
-  selectedTaste(saletempId: number, tasteId: number) {
+  selectedTaste(saletempId: number, tasteId: number, selected: string) {
     try {
       const payload = {
         saleTempId: saletempId,
         tasteId: tasteId,
+        selected: selected,
       };
 
       this.http
@@ -352,7 +353,8 @@ export class SaleComponent {
       const totalPerRow = item.qty * item.price;
 
       for (let j = 0; j < item.SaleTempDetail.length; j++) {
-        this.amount += item.SaleTempDetail[j].addMoney;
+        this.amount +=
+          item.SaleTempDetail[j].addMoney * item.SaleTempDetail[j].qty;
       }
       this.amount += totalPerRow;
     }
@@ -515,10 +517,11 @@ export class SaleComponent {
     }
   }
 
-  addQty(id: number) {
+  updateQty(id: number, condition: string) {
     try {
       const payload = {
         id: id,
+        condition: condition,
       };
 
       this.http
