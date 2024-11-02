@@ -24,6 +24,8 @@ export class DashboardComponent {
   dayjs: typeof dayjs = dayjs;
   year: number = dayjs().year();
   month: number = dayjs().month() + 1;
+  chartDay: any;
+  chartMonth: any;
 
   ngOnInit() {
     const totalDayInMonth = dayjs().daysInMonth();
@@ -63,8 +65,12 @@ export class DashboardComponent {
       datas.push(item.amount);
     }
 
+    if (this.chartDay) {
+      this.chartDay.destroy();
+    }
+
     const ctx = document.getElementById('chartPerDay') as HTMLCanvasElement;
-    new Chart(ctx, {
+    this.chartDay = new Chart(ctx, {
       type: 'bar',
       data: {
         labels: labels,
@@ -94,8 +100,12 @@ export class DashboardComponent {
       datas.push(item.amount);
     }
 
+    if (this.chartMonth) {
+      this.chartMonth.destroy();
+    }
+
     const ctx = document.getElementById('chartPerMonth') as HTMLCanvasElement;
-    new Chart(ctx, {
+    this.chartMonth = new Chart(ctx, {
       type: 'bar',
       data: {
         labels: this.monthsName,

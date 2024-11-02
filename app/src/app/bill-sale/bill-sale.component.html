@@ -43,7 +43,13 @@
           <td class="text-center">{{ billSale.tableNo }}</td>
           <td class="text-center">{{ billSale.payType }}</td>
           <td class="text-end">{{ billSale.amount }}</td>
-          <td>
+          <td class="text-center">
+            <button
+              class="btn btn-secondary mr-2"
+              (click)="selectInvoice(billSale)"
+            >
+              <i class="fa fa-receipt"></i>
+            </button>
             <button class="btn btn-danger" (click)="remove(billSale.id)">
               <i class="fa fa-times"></i>
             </button>
@@ -54,3 +60,19 @@
     </table>
   </div>
 </div>
+
+<app-modal modalId="modalBill" title="ใบแจ้งรายการ/ใบเสร็จ">
+  <iframe
+    id="pdf-frame"
+    height="500px"
+    style="width: 100%"
+    frameBorder="0"
+  ></iframe>
+</app-modal>
+
+<button
+  style="display: none"
+  id="btnPrintBill"
+  data-bs-toggle="modal"
+  data-bs-target="#modalBill"
+></button>

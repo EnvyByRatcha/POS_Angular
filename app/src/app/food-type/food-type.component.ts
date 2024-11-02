@@ -109,6 +109,8 @@ export class FoodTypeComponent {
               icon: 'success',
               timer: 2000,
             });
+
+            this.fetchData();
           });
       }
     } catch (e: any) {

@@ -31,7 +31,9 @@ module.exports = {
       } else {
         await prisma.saleTemp.update({
           data: {
-            qty: oldData.qty + 1,
+            qty: {
+              increment:1
+            },
           },
           where: {
             id: oldData.id,
@@ -748,18 +750,19 @@ module.exports = {
 
       doc.end();
 
-      prisma.billSale.update({
+      await prisma.billSale.update({
         data: {
-          invoice: fileName.substring(fileName.indexOf("invoice-")),
+          invoice: fileName,
         },
         where: {
-          userId,
-          tableNo,
-          status: "use",
+          id: billSale.id,
         },
       });
 
-      return res.send({ message: "success", fileName: fileName });
+      return res.send({
+        message: "success",
+        fileName: fileName,
+      });
     } catch (e) {
       return res.status(500).send({ error: e.message });
     }
