@@ -32,7 +32,7 @@ module.exports = {
         await prisma.saleTemp.update({
           data: {
             qty: {
-              increment:1
+              increment: 1,
             },
           },
           where: {
